@@ -1,5 +1,4 @@
 import socket
-import simple_parser
 from subprocess import Popen, PIPE, STDOUT
 import os, time, string
 

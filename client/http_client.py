@@ -185,12 +185,10 @@ class Client(object):
         ram = psutil.virtual_memory()[2]
         disk = psutil.disk_usage(os.getcwd())[3]
         current = None
-        '''if platform.system().lower() != "windows": 
+        if platform.system().lower() != "windows": 
             temp =self.get_cpu_temperature()
         else:
             temp = 35
-        '''
-        temp =35
         
         now = datetime.datetime.strftime(datetime.datetime.now(), "%H%M")
         self.health["time"].append(now)

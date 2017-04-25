@@ -1,0 +1,12 @@
+#Folders 
+
+.vscode/
+
+# File extensions
+
+*.mp4
+*.pyc
+*.dat
+
+#files
+db.sqlite3
