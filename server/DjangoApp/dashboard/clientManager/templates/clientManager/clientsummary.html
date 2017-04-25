@@ -1,0 +1,34 @@
+{% extends "window.html" %}
+
+{% block viewport %}
+<hr />
+<div class="row">
+    <div class="col-sm-3"></div>
+    <div class="col-md-6">
+        <div class="well" style="max-height: 600px; overflow-y: auto;">
+            {% if clients|length < 1 %}
+                <p>There are no clients currently being managed by this dashboard, add some!</p>
+            {% else %}
+                {% for client in clients %}
+                
+                <div class='panel panel-primary'>
+                    <div class='panel-heading'><h4>{{client.client_name}}</h4></div>
+                    <div class='panel-body'>
+                        <p>IP address: {{client.ip}}</p>
+                        <p>Location: {{client.location}}</p>
+                        <p>Number of ads running: {{client.num_ads}}</p>
+                        <a class="btn btn-primary" href="{% url 'edit_client' pk=client.client_name %}">Edit</a>
+                        <a class="btn btn-primary" href="{% url 'client_health' pk=client.client_name %}">Health data</a>
+                        <a class="btn btn-danger" href="{% url 'delete_client' pk=client.client_name %}" onclick="return confirm('Are you sure you want to delete this client?')">Delete Client</a>
+                        
+                    </div>
+                </div>
+                
+                {% endfor %}
+        {% endif %}
+        </div>
+    </div>
+    <div class="col-sm-3"></div>
+</div>
+
+{% endblock %}

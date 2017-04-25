@@ -1,0 +1,23 @@
+{% extends "window.html" %}
+{% block viewport %}
+<div class="row">
+    <div class="col-md-12">
+        <h2 style="color: white;">Client creation form</h2>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-4"></div>
+    <div class="col-sm-4">
+        <div class="well">
+            <form method="POST" class="form" action="{% url 'new_client' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                    {{form.as_p}}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Client</button> 
+            </form>
+        </div>
+    </div>
+    <div class="col-sm-4"></div>
+</div>
+{% endblock %}

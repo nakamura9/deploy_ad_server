@@ -1,0 +1,51 @@
+{% extends "window.html" %}
+{% block viewport %}
+    <div class="row">
+    <div class="col-md-4">
+        <h3 style="color: white;">Clients</h3>
+    </div>
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+        <a href="{% url 'new_client' %}" class="btn btn-primary">Add Client</a>  
+    </div>
+</div>
+<hr />
+<div class="row">
+    <div class="col-sm-2"></div>
+    <div class="col-md-8">
+        <div class="well" style="max-height: 600px; overflow-y: auto;">
+            <h4>Health data for {{name}}:</h4>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <td>Time</td>
+                        <td>CPU Usage (%)</td>
+                        <td>RAM Usage (%)</td>
+                        <td>Disk Usage (%)</td>
+                        <td>Temperature (C)</td>
+                        <td>Disk Latency (ms)</td>
+                        <td>Connectivity (bool)</td>
+                        <td>Ad playing (name)</td>
+                    </tr>    
+                </thead>
+                <tbody>
+                    {% for time, cpu, ram, disk, temp, latency, conn, play in rows %}
+                        <tr>
+                            <td>{{time}}</td>
+                            <td>{{cpu}}</td>
+                            <td>{{ram}}</td>
+                            <td>{{disk}}</td>
+                            <td>{{temp}}</td>
+                            <td>{{latency}}</td>
+                            <td>{{conn}}</td>
+                            <td>{{play}}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-sm-2"></div>
+</div>
+
+{% endblock %}

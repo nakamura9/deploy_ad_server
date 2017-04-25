@@ -1,0 +1,27 @@
+{% load static %}
+<!Doctype html>
+    <html>
+        <head>
+            <meta name="charset" value="UTF-8">
+            <meta name="viewport" value="width=device-width, initial-scale=1.0">
+            
+
+            <link rel="stylesheet" href="{% static 'clientManager/bootstrap/css/bootstrap.min.css' %}">
+            <style>
+                .helptext {
+                    display: none;
+                }
+            </style>
+            {% block head %}
+            {% endblock %}
+        </head>
+        <body style="background-image: url({% static 'clientManager/bg.png' %});">
+            {% block content %}
+            {% endblock %}
+            <script src="{% static 'clientManager/jquery-2.2.2.js' %}"></script>
+            <script src="{% static 'clientManager/bootstrap/js/bootstrap.min.js' %}"></script>
+            
+            {% block js %}
+            {% endblock %}
+        </body>
+    </html>

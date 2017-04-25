@@ -1,0 +1,8 @@
+{% extends "window.html" %}
+{% block viewport %}
+<form action="" method="POST" class="well">
+    {% csrf_token %}
+    <p>Are you sure you want to delete {{object}}?</p>
+    <input type="submit" value="Confirm" class="btn btn-primary" />
+</form>
+{% endblock %}

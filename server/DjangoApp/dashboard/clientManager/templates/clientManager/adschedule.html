@@ -1,0 +1,206 @@
+{% extends "window.html" %}
+{% block viewport %}
+<div class="row">
+    <div class="col-md-12">
+        <h2 style="color: white;">Ad creation form</h2>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-4"></div>
+    <div class="col-sm-4">
+        <div class="well">
+            <form method="POST" class="form" enctype=multipart/form-data action="{% url 'schedule' %}"
+                     onsubmit="return validateForm()">
+                    {% csrf_token %}
+                    <div class="form-group">
+                    <style>
+                        tr, td{
+                            padding: 2px;
+                        }
+                    </style>
+                    <table>
+                        <thead></thead>
+                        <tbody>
+                            <tr>
+                                <td>Ad To be Scheduled:</td>
+                                <td><select class="form-control" name="ad">{% for ad in ads %}
+                                    <option value="{{ad.ad_name}}">{{ad.ad_name}}</option>
+                                {% endfor %}
+                                    </select></td>
+                            </tr>
+                            <tr>
+                                <td>Start Date:</td>
+                                <td><input class="form-control" type="date" name="start" id="start"></td>
+                            </tr>
+                            <tr>
+                                <td>End Date:</td>
+                                <td><input class="form-control" type="date" name = "end" id="end"></td>
+                            </tr>
+                            <tr>
+                                <td>Days:(hold down ctrl to select multiple days)</td>
+                                <td><select multiple size="7" name = "days" class="form-control">
+                                        <option value="monday">Monday</option>
+                                        <option value="tuesday">Tuesday</option>
+                                        <option value="wednesday">Wednesday</option>
+                                        <option value="thursday">Thursday</option>
+                                        <option value="friday">Friday</option>
+                                        <option value="saturday">Saturday</option>
+                                        <option value="sunday">Sunday</option>
+                                    </select></td>
+                            </tr>
+                            <tr>
+                                <td>Interval 1:</td>
+                                <td>
+                                    
+                                    <select class="form-control" name="int_1_start" id="int_1_start">
+                                        {% for i in "01" %}
+                                            {% for j in "0123456789" %}
+                                                <option value="{{i}}{{j}}00">{{i}}{{j}}:00</option>
+                                            {% endfor %}
+                                        {% endfor %}
+                                                <option value = "2000">20:00</option>
+                                                <option value = "2100">21:00</option>
+                                                <option value = "2200">22:00</option>
+                                                <option value = "2300">23:00</option>
+                                    </select>
+                                    <select class="form-control" name="int_1_end" id="int_1_end">
+                                        {% for i in "01" %}
+                                            {% for j in "0123456789" %}
+                                                <option value="{{i}}{{j}}00">{{i}}{{j}}:00</option>
+                                            {% endfor %}
+                                        {% endfor %}
+                                                <option value = "2000">20:00</option>
+                                                <option value = "2100">21:00</option>
+                                                <option value = "2200">22:00</option>
+                                                <option value = "2300">23:00</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Interval 2(optional):</td>
+                                <td>
+                                    <select class="form-control" name="int_2_start" id="int_2_start">
+                                        {% for i in "01" %}
+                                            {% for j in "0123456789" %}
+                                                <option value="{{i}}{{j}}00">{{i}}{{j}}:00</option>
+                                            {% endfor %}
+                                        {% endfor %}
+                                                <option value = "2000">20:00</option>
+                                                <option value = "2100">21:00</option>
+                                                <option value = "2200">22:00</option>
+                                                <option value = "2300">23:00</option>
+                                    </select>
+                                    <select class="form-control" name="int_2_end" id="int_2_end">
+                                        {% for i in "01" %}
+                                            {% for j in "0123456789" %}
+                                                <option value="{{i}}{{j}}00">{{i}}{{j}}:00</option>
+                                            {% endfor %}
+                                        {% endfor %}
+                                                <option value = "2000">20:00</option>
+                                                <option value = "2100">21:00</option>
+                                                <option value = "2200">22:00</option>
+                                                <option value = "2300">23:00</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Interval 3(optional):</td>
+                                <td>
+                                    <select  class="form-control" name="int_3_start" id="int_3_start">
+                                        {% for i in "01" %}
+                                            {% for j in "0123456789" %}
+                                                <option value="{{i}}{{j}}00">{{i}}{{j}}:00</option>
+                                            {% endfor %}
+                                        {% endfor %}
+                                                <option value = "2000">20:00</option>
+                                                <option value = "2100">21:00</option>
+                                                <option value = "2200">22:00</option>
+                                                <option value = "2300">23:00</option>
+                                    </select>
+                                    <select class="form-control" name="int_3_end" id="int_3_end">
+                                        {% for i in "01" %}
+                                            {% for j in "0123456789" %}
+                                                <option value="{{i}}{{j}}00">{{i}}{{j}}:00</option>
+                                            {% endfor %}
+                                        {% endfor %}
+                                                <option value = "2000">20:00</option>
+                                                <option value = "2100">21:00</option>
+                                                <option value = "2200">22:00</option>
+                                                <option value = "2300">23:00</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <input type="submit" class="btn btn-primary" value="Create Schedule" > 
+            </form>
+        </div>
+    </div>
+    <div class="col-lg-4"></div>
+</div>
+{% endblock %}
+{% block scripts %}
+    function validateForm(){
+        var today = new Date();
+        
+        var start = new Date($("#start").val());
+        var end   = new Date($("#end").val());
+
+        var int_1_s = $("#int_1_start").val();
+        var int_1_e = $("#int_1_end").val();
+        var int_2_s = $("#int_2_start").val();
+        var int_2_e = $("#int_2_end").val();
+        var int_3_s = $("#int_3_start").val();
+        var int_3_e = $("#int_3_end").val();
+
+        if($("#start").val() == "" || $("#end").val() == "" || int_1_s == "" ||
+            int_1_e == ""){
+                alert("Not all required fields have been entered");
+                return false;
+            }
+        if(compareDates(start, today)){
+            alert("Invalid start Date");
+            return false;
+        }else if(compareDates(end, start)){
+            alert("Invalid end date");
+            return false;
+        }else{
+            alert("valid date");
+            if(compareTimes(int_1_s, int_1_e)){
+                alert("Invalid first interval");
+                return false;
+            }else{
+                return true;
+            }
+        }
+    }
+
+    function compareTimes(t1,t2){
+        if(parseInt(t1) > parseInt(t2)){
+            console.log("Found false");
+            return true;
+
+        }else{
+            console.log("found true");
+            return false;
+        }
+    }
+
+    function compareDates(d1, d2){
+        if(d2.getFullYear() < d1.getFullYear()){
+            return false;
+        }else{
+            if(d2.getMonth() < d1.getMonth()){
+                return false;
+            }else{
+                if(d2.getDate() <= d1.getDate()){
+                    return false;
+                }else{
+                    return true;
+                }
+            }
+        }
+    }
+
+{% endblock %}
