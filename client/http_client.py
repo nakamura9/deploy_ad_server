@@ -46,7 +46,7 @@ def log_event(msg, level = "i"):
 
 
 class Client(object):
-    def __init__(self, host= "localhost", port="8000", id = ""):    
+    def __init__(self, host= "localhost", port="8080", id = ""):    
         self.ads = {}
         self.player = None
         self.retries = 0
@@ -152,7 +152,6 @@ class Client(object):
                 self.player.playlist = new_list
 
     def get_cpu_temperature(self):
-        #remember to include this library on the install script
         process =subprocess.Popen(['vcgencmd', 'measure_temp'],
                                 stdout=subprocess.PIPE)
         output, _error = process.communicate()
@@ -363,14 +362,12 @@ class Client(object):
         updated to the server."""
         
         self.query_health()  
-        print self.ads
-    
         self.start_player()
 
         if self.count % 6 == 0:
             self.upload_health_status()
 
-        if self.count % 6 == 0:
+        if self.count % 12 == 0:
             self.get_updates()
             self.count = 0
         
@@ -384,9 +381,11 @@ if __name__ == "__main__":
         The arguments that must be provided when starting the application are:
         1.Name of client registered with server(replace spaces with % character)
         2.IP address of server
-        3.Port on server""")
+        3.Port on server
+        NB. 2 and 3 are optional""")
 
     id = sys.argv[1].replace("%", " ")  
+    
     host = sys.argv[2]
     port = sys.argv[3]
 
@@ -394,14 +393,15 @@ if __name__ == "__main__":
                     host=host,
                     port=port)
  
+    
     client.get_initial_ads()
-    #called mcGrath after glen McGrath, cricketer nicknamed metronome
+    
+    #named mcGrath after glen McGrath, cricketer nicknamed metronome
     mcGrath = sched.scheduler(time.time, time.sleep) 
     
     def metronome(sc):
         client.periodic_method()
-        sc.enter(5, 1, metronome, (sc, ))
+        sc.enter(300, 1, metronome, (sc, ))
 
-    mcGrath.enter(5, 1, metronome, (mcGrath, ))
+    mcGrath.enter(300, 1, metronome, (mcGrath, ))
     mcGrath.run()
-    

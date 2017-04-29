@@ -55,7 +55,7 @@ class signupView(FormView):
                 
         
 
-class summaryView(TemplateView, LoginRequiredMixin):
+class summaryView(LoginRequiredMixin,TemplateView):
     login_url = "/"
     redirect_field_name = "redirect_to"
     template_name = os.path.join("clientManager","summary.html")
@@ -89,7 +89,7 @@ class adsView(LoginRequiredMixin,ListView):
         context['ads'] = ads.objects.all()
         return context
 
-class clientsView(ListView, LoginRequiredMixin):
+class clientsView(LoginRequiredMixin,ListView):
     login_url = "/"
     redirect_field_name = "redirect_to"
     model = clients
@@ -100,7 +100,7 @@ class clientsView(ListView, LoginRequiredMixin):
         context["clients"] = clients.objects.all()
         return context
 
-class clientFormView(FormView, LoginRequiredMixin):
+class clientFormView(LoginRequiredMixin,FormView):
     login_url = "/"
     redirect_field_name = "redirect_to"
     template_name = os.path.join("clientManager","newclient.html")
@@ -118,7 +118,7 @@ class clientFormView(FormView, LoginRequiredMixin):
         return super(clientFormView, self).form_valid(form)
 
         
-class adFormView(FormView, LoginRequiredMixin):
+class adFormView(LoginRequiredMixin,FormView):
     login_url = "/"
     redirect_field_name = "redirect_to"
     template_name = os.path.join("clientManager","newad.html")
@@ -138,7 +138,7 @@ class adFormView(FormView, LoginRequiredMixin):
         #register with observer
         return result
 
-class updateAdView(UpdateView, LoginRequiredMixin):
+class updateAdView(LoginRequiredMixin,UpdateView):
     login_url = "/"
     redirect_field_name = "redirect_to"
     model = ads
@@ -156,7 +156,7 @@ class updateAdView(UpdateView, LoginRequiredMixin):
 
         return super(updateAdView, self).form_valid(form)
 
-class updateClientView(UpdateView, LoginRequiredMixin):
+class updateClientView(LoginRequiredMixin,UpdateView):
     login_url = "/"
     redirect_field_name = "redirect_to"
     template_name = os.path.join("clientManager","edit_client.html")
@@ -174,7 +174,7 @@ class updateClientView(UpdateView, LoginRequiredMixin):
         return super(updateClientView, self).form_valid(form)
             
             
-class clientHealthView(DetailView, LoginRequiredMixin):
+class clientHealthView(LoginRequiredMixin,DetailView):
     login_url = "/"
     redirect_field_name = "redirect_to"
     template_name = os.path.join("clientManager","health_stats.html")
@@ -199,7 +199,7 @@ class clientHealthView(DetailView, LoginRequiredMixin):
 
 
 
-class deleteAdView(DeleteView, LoginRequiredMixin):
+class deleteAdView( LoginRequiredMixin,DeleteView):
     login_url = "/"
     redirect_field_name = "redirect_to"
     model = ads
@@ -207,7 +207,7 @@ class deleteAdView(DeleteView, LoginRequiredMixin):
 #delete file and stuff
 
 
-class deleteClientView(DeleteView, LoginRequiredMixin):
+class deleteClientView(LoginRequiredMixin,DeleteView):
     login_url = "/"
     redirect_field_name = "redirect_to"
     model = clients
@@ -217,6 +217,7 @@ class deleteClientView(DeleteView, LoginRequiredMixin):
         add_message("Client %s deleted sucessfully" % self.get_object().client_name)
         return super(deleteClientView, self).delete(*args, **kwargs)
 
+@login_required
 def add_schedule(request):
     path = os.path.join("clientManager","adschedule.html")
     
