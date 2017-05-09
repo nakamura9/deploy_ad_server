@@ -17,7 +17,7 @@ class PlayerTests(ut.TestCase):
     def test_initial_condition(self):
         self.assertEquals(self.v._playlist, self.v.playlist)
 
-
+    
     def test_add_file_to_playlist(self):
         del self.v.playlist
         self.v.playlist = self.v_string

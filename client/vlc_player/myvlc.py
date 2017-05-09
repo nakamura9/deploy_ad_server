@@ -80,12 +80,12 @@ class VLC(object):
         self.clear()
 
     def create_player(self):
-        process = Popen(["vlc", "-I", "rc",
+        Popen(["vlc", "-I", "rc",
                             "--rc-host",
                             "%s:%s" % (self.host, self.port)],
                             stdout=PIPE, stdin=PIPE,
                             stderr=PIPE)
-        
+
 
     def check_path(self, path):
         '''Ensures all files added to the application are 
