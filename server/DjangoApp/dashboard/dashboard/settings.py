@@ -25,7 +25,7 @@ SECRET_KEY = '36!ae)x)i1_67eg6(8=-10-mbtgoq%m9aw@j^%!^v=q9&z1x!n'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "localadserver.com"]
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -33,7 +33,6 @@ ALLOWED_HOSTS = ["127.0.0.1", "localhost", "localadserver.com"]
 INSTALLED_APPS = [
     'django.contrib.admin',
     'clientManager',
-    
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
