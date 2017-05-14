@@ -1,6 +1,10 @@
 import socket
 from subprocess import Popen, PIPE, STDOUT
-import os, time, string
+import os
+import time
+import string
+import requests
+import json
 
 class UnsupportedFileTypeException(Exception):
     '''Raised if the file type is not among the list of supported types'''
@@ -16,12 +20,10 @@ class VLCCommsError(Exception):
 
 
 class VLC(object):
-    def __init__(self, host="localhost", port=8888):
+    def __init__(self, host="127.0.0.1", port=8080):
         #connection attrs
         self.host = host
         self.port = port
-        self.fullscreen = False
-        self.loop = False
         #private playlist var, stores list of file paths
         #mirrors the list in the player at all times
         self._playlist = []
@@ -41,15 +43,14 @@ class VLC(object):
     @property
     def connection_open(self):
         try:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(2)
-            sock.connect((self.host, self.port))
-            sock.sendall("get_title\n".encode())
-            data = sock.recv(4096)
-        except:
+            resp = requests.get("http://%s:%s/requests/status.json" % \
+            (self.host, self.port),
+             auth=("", "1234"))
+            if resp.status_code == 200:
+                return True
+            else: return False
+        except Exception as e:
             return False
-        else:
-            return True
 
     @playlist.setter
     def playlist(self, arg):
@@ -80,9 +81,9 @@ class VLC(object):
         self.clear()
 
     def create_player(self):
-        Popen(["vlc", "-I", "rc",
-                            "--rc-host",
-                            "%s:%s" % (self.host, self.port)],
+        if self.connection_open:
+            return
+        Popen(["vlc", "-I", "http"],
                             stdout=PIPE, stdin=PIPE,
                             stderr=PIPE)
 
@@ -102,80 +103,59 @@ class VLC(object):
 
     def execute(self, cmd):
         '''Prepare a command and send it to VLC'''
-        if not cmd.endswith('\n'):
-            cmd = cmd + '\n'
-        cmd = cmd.encode()
-        if not self.connection_open:
-            self.create_player()
+        request_string = \
+        "http://%s:%s/requests/status.xml?command=%s" % (
+            self.host, self.port, cmd)
+        resp =requests.get(request_string, auth=("","1234"))
         
-        try:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(2)
-            sock.connect((self.host, self.port))
-            sock.sendall(cmd)
-            data = sock.recv(4096)
-            
-            #need to implement a return value based on response
-        except:
-            print "command transmission error"
-            data = None 
-        finally:
-            sock.close()
-            return data
-
-
     def toggle_fullscreen(self):
         '''puts the windows in full screen'''
-        self.fullscreen = not self.fullscreen
-        self.execute('f')
-
+        resp = requests.get(
+            "http://%s:%s/requests/status.json" % (self.host, self.port), auth=("", "1234"))
+        js = json.loads(resp.content)
+        print js["fullscreen"]
+        if js["fullscreen"] == 0:
+            print "toggled"
+            self.execute('fullscreen')
+            resp = requests.get(
+            "http://%s:%s/requests/status.json" % (self.host, self.port), auth=("", "1234"))
+            js = json.loads(resp.content)
+            print js["fullscreen"]
 
     def toggle_loop(self):
         '''makes the vlc player loop the current playlist'''
-        self.loop = not self.loop
-        self.execute("loop")
-#normal player controls 
+        resp = requests.get(
+            "http://%s:%s/requests/status.json" % (self.host, self.port), auth=("", "1234"))
+        js = json.loads(resp.content)
+        if not js["loop"]:
+            self.execute("pl_loop")
+
 
     def pause(self):
         """Checks the current state to make sure the player is playing something"""
-        self.execute('pause')
+        self.execute('pl_pause')
 
     def play(self):
         """First checks if a valid file is currently loaded."""
-        self.execute('play')
-        if not self.fullscreen:
-            self.toggle_fullscreen()
-        if not self.loop:
-            self.toggle_loop()
+        self.execute('pl_play')
+        time.sleep(5)
+        self.toggle_fullscreen()
+        self.toggle_loop()
 
     def stop(self):
         """checks first if there is something to stop"""
-        self.execute('stop')
+        self.execute('pl_stop')
 
-    def prev(self):
-        """Makes sure the playlist is longer than 1"""
-        self.execute('prev')
-
-    def next(self):
-        """Makes sure the playlist is longer than 1"""
-        self.execute('next')
 
     def _enqueue(self, path):
         '''adds a file to the playlist'''
         self.check_path(path)
-        data = self.execute('enqueue %s' % (path,))
-        time.sleep(1)
-        if data:
-            self._playlist.append(path)
+        data = self.execute(
+            'in_enqueue&input=%s' % (
+                os.path.abspath(path),))
+        
 
     def clear(self):
         '''clears all files from the playlist'''
         self.execute('clear')
         self._playlist = []
-
-    def shutdown(self):
-        '''closes the vlc window and closes the socket connection'''
-        self.execute('quit')
-        self.fullscreen = False
-        self._playlist = []
-        self.loop = False

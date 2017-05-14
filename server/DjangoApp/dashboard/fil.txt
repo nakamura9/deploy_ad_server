@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ascii" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml10/DTD/xhtml10strict.dtd">
+<html lang="en">
+<head>
+<title>Client error</title>
+</head>
+<body>
+<h1>401 Client error (/requests/status.json)</h1>
+<hr />
+<a href="http://www.videolan.org">VideoLAN</a>
+</body>
+</html>

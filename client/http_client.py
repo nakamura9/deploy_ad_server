@@ -43,6 +43,7 @@ def log_event(msg, level = "i"):
         logging.error(timestamp + msg)
     else:
         logging.info(timestamp + msg)
+    print msg
 
 
 class Client(object):
@@ -70,6 +71,7 @@ class Client(object):
     def start_player(self):
         """Starts an instance of the video player"""
         #if no ads try and start the player 5 minutes later
+        print "starting player"
         if self.ads == {}:
             self.get_initial_ads()
             log_event("The player currently has no ads. \
@@ -78,6 +80,7 @@ class Client(object):
 
         if not self.player:
             self.player = VLC()
+            self.player.create_player()
             log_event("Instance of vlc_player started")
          
 
@@ -233,11 +236,8 @@ class Client(object):
             log_event("delete was called on a non-exisiting file", "w")
             return 
         
-        self.player.clear()
-        time.sleep(1)
-        self.player.shutdown()
+        self.player.stop()
         time.sleep(2)
-        self.player = None
         try:
             os.remove(path)
         except Exception as e:

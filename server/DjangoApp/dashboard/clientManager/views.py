@@ -280,6 +280,7 @@ def push_initial(request, client_id):
     except:
         add_message("The requesting client, %s is not registered \
         with this server and did not get any updates" % client_id)
+        return
     
     response = {}
     num_ads = len(_client.client_ads.all())
