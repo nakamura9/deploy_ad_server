@@ -7,6 +7,7 @@
 *.mp4
 *.pyc
 *.dat
+*.log
 
 #files
 db.sqlite3
