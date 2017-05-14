@@ -54,8 +54,12 @@ class Client(object):
         self.server_host = host
         self.server_port = port
         self.id = id
-            
+        if not os.path.exists("Advertisments"):
+            os.mkdir("Advertisments")
+
         self.ad_folder = os.path.join(os.getcwd(), "Advertisments")
+        self.weekdays = {6:"sunday", 0:"monday", 1:"tuesday",  2:"wednesday", 3:"thursday", 4:"friday", 5:"saturday"}
+
         self.health = {
                         "disk_space": [],
                         "temperature": [],
@@ -101,31 +105,27 @@ class Client(object):
 
     def ad_is_current(self, ad):
         today = datetime.date.today()
-        now = datetime.datetime.now().time()
         ad = self.ads[ad]
         start_date = datetime.datetime.strptime(ad["duration"]["start"], "%Y-%m-%d").date()
-        first_interval = ad["duration"]["interval_one"].split("-")
-        third_interval = ad["duration"]["interval_two"].split("-")
-        second_interval = ad["duration"]["interval_three"].split("-")
-
-        if today >= start_date:
-            if now >= datetime.datetime.strptime(
-                first_interval[0], "%H%M").time() and \
-                now < datetime.datetime.strptime(
-                first_interval[1], "%H%M").time():
-                return True
-            elif now >= datetime.datetime.strptime(
-                second_interval[0], "%H%M").time() and \
-                now < datetime.datetime.strptime(
-                second_interval[1], "%H%M").time():
-                return True
-            elif now >=  datetime.datetime.strptime(
-                third_interval[0], "%H%M").time() and \
-                now < datetime.datetime.strptime(
-                third_interval[1], "%H%M").time():
+        
+        if self.weekdays[today.weekday()] not in ad["duration"]["days"]:
+            return False          
+        
+        def in_interval(interval):
+            start, end = tuple(interval.split("-"))
+            start_time = datetime.datetime.strptime(start, "%H%M").time()
+            end_time = datetime.datetime.strptime(end, "%H%M").time()
+            now = datetime.datetime.now().time()
+            if now >= start_time and now < end_time:
                 return True
             else:
                 return False
+
+        if today >= start_date:
+            if in_interval(ad["duration"]["interval_one"]) or in_interval(ad["duration"]["interval_two"]) or in_interval(ad["duration"]["interval_three"]):
+                return True
+            else:
+                return False  
         else:
             return False
 
@@ -162,19 +162,42 @@ class Client(object):
                     1:output.rindex("'")])
 
     def get_disk_space(self):
+        if platform.platform().lower().startswith("windows"):
+            return 99
         stats = os.statvfs(__file__)
         return stats.f_bavail * stats.f_frsize 
     
+
+    def get_disk_usage(self):
+        return psutil.disk_usage(os.getcwd())[3]
+    
+    def get_latency(self):
+        #Not implemented, yet
+        return 0.035
+
+    def cpu_usage(self):
+        return psutil.cpu_percent()
+
+    
+    def get_ram_usage(self):
+        return psutil.virtual_memory()[2]
+
+
     def ping_server(self):
-         parameters = "-n 1"\
+        parameters = "-n 1"\
                      if platform.system().lower()=="windows" \
                      else "-c 1"
          
-         if self.server_host == "localhost":
-             return os.system("ping localhost -n 1") == 0
-         return os.system("ping " + parameters + " " + \
-                    "http://%s:%s/ads" % (self.server_host,
-                                self.server_port)) == 0
+        if self.server_host == "localhost":
+            output = subprocess.call(["ping", 
+             "localhost", "-n 1"], stdout=subprocess.PIPE)
+            return output == 0
+        else:
+            output = subprocess.call(["ping", 
+             parameters, "http://%s:%s/ads" % \
+             (self.server_host, self.server_port)], 
+             stdout=subprocess.PIPE)
+            return output == 0
 
     
     def query_health(self):
@@ -182,25 +205,21 @@ class Client(object):
         for the current state of the pi
         checks if the player is running"""
 
-        ping = self.ping_server()
-        cpu_usage = psutil.cpu_percent()
-        ram = psutil.virtual_memory()[2]
-        disk = psutil.disk_usage(os.getcwd())[3]
-        current = None
-        if platform.system().lower() != "windows": 
-            temp =self.get_cpu_temperature()
-        else:
-            temp = 35
+        self.health["time"].append(self.now)
+        self.health["connectivity"].append(
+            self.ping_server())
+        self.health["temperature"].append(
+            self.get_cpu_temperature())
+        self.health["cpu_percentages"].append(
+            self.cpu_usage())
+        self.health["ram_percentages"].append(
+            self.get_ram_usage())
+        self.health["latency"].append(
+            self.get_latency())
+        self.health["playing"].append(None)
+        self.health["disk_space"].append(
+            self.get_disk_usage())
         
-        now = datetime.datetime.strftime(datetime.datetime.now(), "%H%M")
-        self.health["time"].append(now)
-        self.health["connectivity"].append(ping)
-        self.health["temperature"].append(temp)
-        self.health["cpu_percentages"].append(cpu_usage)
-        self.health["ram_percentages"].append(ram)
-        self.health["latency"].append(0.035)
-        self.health["playing"].append(current)
-        self.health["disk_space"].append(disk)
         log_event("querying health...")
 
     def upload_health_status(self):

@@ -113,15 +113,10 @@ class VLC(object):
         resp = requests.get(
             "http://%s:%s/requests/status.json" % (self.host, self.port), auth=("", "1234"))
         js = json.loads(resp.content)
-        print js["fullscreen"]
-        if js["fullscreen"] == 0:
-            print "toggled"
-            self.execute('fullscreen')
-            resp = requests.get(
-            "http://%s:%s/requests/status.json" % (self.host, self.port), auth=("", "1234"))
-            js = json.loads(resp.content)
-            print js["fullscreen"]
 
+        if js["fullscreen"] == 0:
+            self.execute('fullscreen')
+            
     def toggle_loop(self):
         '''makes the vlc player loop the current playlist'''
         resp = requests.get(
