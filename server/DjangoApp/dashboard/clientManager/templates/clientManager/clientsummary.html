@@ -19,7 +19,7 @@
                         <p>Number of ads running: {{client.num_ads}}</p>
                         <a class="btn btn-primary" href="{% url 'edit_client' pk=client.client_name %}">Edit</a>
                         <a class="btn btn-primary" href="{% url 'client_health' pk=client.client_name %}">Health data</a>
-                        <a class="btn btn-danger" href="{% url 'delete_client' pk=client.client_name %}" onclick="return confirm('Are you sure you want to delete this client?')">Delete Client</a>
+                        <a class="btn btn-danger" href="{% url 'delete_client' pk=client.client_name %}" >Delete Client</a>
                         
                     </div>
                 </div>

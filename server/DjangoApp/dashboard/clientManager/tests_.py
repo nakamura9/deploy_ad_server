@@ -10,45 +10,37 @@ import datetime
 
 class ObserverTests(TestCase):
     @classmethod
-    def setUpTestData(cls):
-        a = ads.objects.create(ad_name="test ad",
-                description="something",
-                customer="someone",
-                duration=10,
-                source=os.,
-                thumbnail="")
+    def setUpTestData(cls):
+        a = ads.objects.create(ad_name="test ad",description="something",
+        customer="someone",
+        duration=10,
+        source=os.path.join("test_data", "video.mp4"),thumbnail="")
 
-        b = clients.objects.create(client_name="test pi",
-                    password="123",
-                    ip="123123",
-                    location="somewhere")
+        b = clients.objects.create(client_name="test pi",password="123",ip="123123",location="somewhere")
 
 
-    def setUp(self):
-        self.client = clients.objects.get(client_name="test pi")
-        self.old = []
-        self.ad = ads.objects.get(ad_name="test ad")
-
-     
-
-    def test_convert_ad_to_json(self):
-        ad_schedule.objects.create(ad_id="test ad",
-                                start=datetime.datetime.today(),
-                                end=datetime.datetime.today(),
-                                days="[tuesday]",
-                                interval_one="0000-1000",
-                                interval_two="1200-1400",
-                                interval_three="0000-1000")
-
-        data = convert_ad_to_json("test ad")
-        print data
-        duration = json.loads(data)["duration"]
-
-        self.assertNotEqual(duration, {})
+    def setUp(self):
+        self.client = clients.objects.get(client_name="test pi")
+        self.old = []
+        self.ad = ads.objects.get(ad_name="test ad")
 
 
-    def test_set_up_sucess(self):
-        self.assertEquals(self.ad.ad_name, "test ad")
+    def test_convert_ad_to_json(self):
+        ad_schedule.objects.create(ad_id="test ad",
+                start=datetime.datetime.today(),
+                end=datetime.datetime.today(),
+                days="[tuesday]",
+                interval_one="0000-1000",
+                interval_two="1200-1400",
+                interval_three="0000-1000")
+
+        data = convert_ad_to_json("test ad")
+        duration = json.loads(data)["duration"]
+        self.assertNotEqual(duration, {})
+
+
+    def test_set_up_sucess(self):
+        self.assertEquals(self.ad.ad_name, "test ad")
 
     def test_remove_ad_from_client(self):
         observer.add_ad_to_client("test ad", "test pi")
@@ -64,27 +56,25 @@ class ObserverTests(TestCase):
         	"CREATE"], {})
 
 
-    def test_client_ads_changed(self):
-        """tests add ad to client as well"""
-        self.client.client_ads.add(self.ad)
-        ret_value = observer.client_ads_changed("test pi", self.old)
-        self.assertNotEquals(observer.updated_clients, {})
+    def test_client_ads_changed(self):
+        """tests add ad to client as well"""
+        self.client.client_ads.add(self.ad)
+        ret_value = observer.client_ads_changed("test pi", self.old)
+        self.assertNotEquals(observer.updated_clients, {})
         self.assertTrue(ret_value)
- 
 
-    def test_ad_clients_changed(self):
-        self.ad.ad_clients.add(self.client)
-        ret_value = observer.ad_clients_changed("test ad", self.old)
-        self.assertNotEquals(observer.updated_clients, {})
-        self.assertTrue(ret_value)
 
- 
+    def test_ad_clients_changed(self):
+        self.ad.ad_clients.add(self.client)
+        ret_value = observer.ad_clients_changed("test ad", self.old)
+        self.assertNotEquals(observer.updated_clients, {})
+        self.assertTrue(ret_value)
 
-    def test_no_changes(self):
-        self.assertFalse(observer.ad_clients_changed("test ad", []))
+
+    def test_no_changes(self):
+        self.assertFalse(observer.ad_clients_changed("test ad", []))
         self.assertFalse(observer.client_ads_changed("test pi", []))
 
- 
 
     def test_delete_ad(self):
         """also tests remove ad from client"""

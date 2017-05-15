@@ -2,10 +2,11 @@
 
 from vlc_player.myvlc import VLC, FileNotFoundException
 import requests
-import time, datetime
+import time
+import datetime
 import sched
 import json
-import os 
+import os
 import platform
 import shutil
 import subprocess
@@ -35,7 +36,8 @@ is deriving its playlist and adds the ad to the queue. finer controls will be ad
 
 logging.basicConfig(filename="log.log", level=logging.INFO)
 
-def log_event(msg, level = "i"):
+
+def log_event(msg, level="i"):
     timestamp = "%s " % datetime.datetime.now()
     if level.lower() == "w":
         logging.warn(timestamp + msg)
@@ -47,7 +49,7 @@ def log_event(msg, level = "i"):
 
 
 class Client(object):
-    def __init__(self, host= "localhost", port="8080", id = ""):    
+    def __init__(self, host="localhost", port="8080", id=""):
         self.ads = {}
         self.player = None
         self.retries = 0
@@ -58,46 +60,47 @@ class Client(object):
             os.mkdir("Advertisments")
 
         self.ad_folder = os.path.join(os.getcwd(), "Advertisments")
-        self.weekdays = {6:"sunday", 0:"monday", 1:"tuesday",  2:"wednesday", 3:"thursday", 4:"friday", 5:"saturday"}
+        self.weekdays = {6: "sunday", 0: "monday", 1: "tuesday",
+                         2: "wednesday", 3: "thursday", 4: "friday", 5: "saturday"}
 
         self.health = {
-                        "disk_space": [],
-                        "temperature": [],
-                        "connectivity": [],
-                        "latency": [],
-                        "playing": [],
-                        "time": [],
-                        "ram_percentages": [],
-                        "cpu_percentages": []
-                        }
+            "disk_space": [],
+            "temperature": [],
+            "connectivity": [],
+            "latency": [],
+            "playing": [],
+            "time": [],
+            "ram_percentages": [],
+            "cpu_percentages": []
+        }
         self.count = 0
-            
+
     def start_player(self):
         """Starts an instance of the video player"""
-        #if no ads try and start the player 5 minutes later
+        # if no ads try and start the player 5 minutes later
         print "starting player"
         if self.ads == {}:
             self.get_initial_ads()
             log_event("The player currently has no ads. \
             Attempting to get initial ads")
-            return 
+            return
 
         if not self.player:
             self.player = VLC()
             self.player.create_player()
             log_event("Instance of vlc_player started")
-         
 
         self.sync_playlist()
-        
+
         self.player.play()
         log_event("player running...")
 
     def ad_expired(self, ad):
         today = datetime.date.today()
-        
+
         ad = self.ads[ad]
-        end_date = datetime.datetime.strptime(ad["duration"]["end"], "%Y-%m-%d").date()
+        end_date = datetime.datetime.strptime(
+            ad["duration"]["end"], "%Y-%m-%d").date()
 
         if today > end_date:
             return True
@@ -106,11 +109,12 @@ class Client(object):
     def ad_is_current(self, ad):
         today = datetime.date.today()
         ad = self.ads[ad]
-        start_date = datetime.datetime.strptime(ad["duration"]["start"], "%Y-%m-%d").date()
-        
+        start_date = datetime.datetime.strptime(
+            ad["duration"]["start"], "%Y-%m-%d").date()
+
         if self.weekdays[today.weekday()] not in ad["duration"]["days"]:
-            return False          
-        
+            return False
+
         def in_interval(interval):
             start, end = tuple(interval.split("-"))
             start_time = datetime.datetime.strptime(start, "%H%M").time()
@@ -125,7 +129,7 @@ class Client(object):
             if in_interval(ad["duration"]["interval_one"]) or in_interval(ad["duration"]["interval_two"]) or in_interval(ad["duration"]["interval_three"]):
                 return True
             else:
-                return False  
+                return False
         else:
             return False
 
@@ -145,7 +149,7 @@ class Client(object):
                         bad_list.append(ad)
                     else:
                         new_list.append(self.ads[ad]["path"])
-        
+
         for ad in bad_list:
             self.ads.pop(ad)
 
@@ -155,51 +159,47 @@ class Client(object):
                 self.player.playlist = new_list
 
     def get_cpu_temperature(self):
-        process =subprocess.Popen(['vcgencmd', 'measure_temp'],
-                                stdout=subprocess.PIPE)
+        process = subprocess.Popen(['vcgencmd', 'measure_temp'],
+                                   stdout=subprocess.PIPE)
         output, _error = process.communicate()
-        return float(output[output.index('=') + 
-                    1:output.rindex("'")])
+        return float(output[output.index('=') +
+                            1:output.rindex("'")])
 
     def get_disk_space(self):
         if platform.platform().lower().startswith("windows"):
             return 99
         stats = os.statvfs(__file__)
-        return stats.f_bavail * stats.f_frsize 
-    
+        return stats.f_bavail * stats.f_frsize
 
     def get_disk_usage(self):
         return psutil.disk_usage(os.getcwd())[3]
-    
+
     def get_latency(self):
-        #Not implemented, yet
+        # Not implemented, yet
         return 0.035
 
     def cpu_usage(self):
         return psutil.cpu_percent()
 
-    
     def get_ram_usage(self):
         return psutil.virtual_memory()[2]
 
-
     def ping_server(self):
         parameters = "-n 1"\
-                     if platform.system().lower()=="windows" \
+                     if platform.system().lower() == "windows" \
                      else "-c 1"
-         
+
         if self.server_host == "localhost":
-            output = subprocess.call(["ping", 
-             "localhost", "-n 1"], stdout=subprocess.PIPE)
+            output = subprocess.call(["ping",
+                                      "localhost", "-n 1"], stdout=subprocess.PIPE)
             return output == 0
         else:
-            output = subprocess.call(["ping", 
-             parameters, "http://%s:%s/ads" % \
-             (self.server_host, self.server_port)], 
-             stdout=subprocess.PIPE)
+            output = subprocess.call(["ping",
+                                      parameters, "http://%s:%s/ads" %
+                                      (self.server_host, self.server_port)],
+                                     stdout=subprocess.PIPE)
             return output == 0
 
-    
     def query_health(self):
         """Functionality that interrogates the device hardware
         for the current state of the pi
@@ -219,7 +219,7 @@ class Client(object):
         self.health["playing"].append(None)
         self.health["disk_space"].append(
             self.get_disk_usage())
-        
+
         log_event("querying health...")
 
     def upload_health_status(self):
@@ -229,9 +229,9 @@ class Client(object):
 
         try:
             response = requests.post("http://{}:{}/pull_data/{}".format(self.server_host, self.server_port,
-                                self.id),
-                                json = json.dumps(self.health)
-                                )
+                                                                        self.id),
+                                     json=json.dumps(self.health)
+                                     )
             if response.status_code == 200:
                 log_event("Upload successful")
 
@@ -239,29 +239,29 @@ class Client(object):
             log_event("the data upload failed, connection lost")
         finally:
             self.health = {
-                            "disk_space": [],
-                            "temperature": [],
-                            "connectivity": [],
-                            "latency": [],
-                            "playing": [],
-                            "time": [],
-                            "ram_percentages": [],
-                            "cpu_percentages": []
-                            }
+                "disk_space": [],
+                "temperature": [],
+                "connectivity": [],
+                "latency": [],
+                "playing": [],
+                "time": [],
+                "ram_percentages": [],
+                "cpu_percentages": []
+            }
 
     def delete_currently_playing_ad(self, path):
         log_event("ad %s is currently playing")
         if not os.path.exists(path):
             log_event("delete was called on a non-exisiting file", "w")
-            return 
-        
+            return
+
         self.player.stop()
         time.sleep(2)
         try:
             os.remove(path)
         except Exception as e:
-            log_event("failed to delete %s because of %s" % \
-                        (path, e))
+            log_event("failed to delete %s because of %s" %
+                      (path, e))
 
         finally:
             self.start_player()
@@ -279,35 +279,37 @@ class Client(object):
                     self.sync_playlist()
                 except:
                     self.delete_currently_playing_ad(path)
-        
+
     def get_initial_ads(self):
         log_event("getting initial data...")
-        
+
         if self.ads != {}:
             # shouldn't get initial data if ads are already present
-            log_event("get initial should not have been called, ads are present on the client", "e")
+            log_event(
+                "get initial should not have been called, ads are present on the client", "e")
             self.get_updates()
             return
-        
+
         try:
-            response = requests.get("http://{}:{}/push_initial/{}".format(self.server_host, 
-                        self.server_port,
-                            self.id))
+            response = requests.get("http://{}:{}/push_initial/{}".format(self.server_host,
+                                                                          self.server_port,
+                                                                          self.id))
             if response.status_code != 200:
-                log_event("the response failed with status code %d" % response.status_code, "e")
-            
+                log_event("the response failed with status code %d" %
+                          response.status_code, "e")
+
             server_data = response.json()
-        
+
         except ValueError:
             log_event("no json data sent from server, going to sleep ....", "e")
             time.sleep(300)
             log_event("trying again to get initial data")
             self.get_initial_ads()
-            
+
         except Exception as e:
             log_event("Failed to request any data from the server", "e")
-            return 
-        
+            return
+
         for ad in server_data:
             ad_data = json.loads(server_data[ad])
             if not ad in self.ads and ad_data["duration"] != {}:
@@ -320,16 +322,16 @@ class Client(object):
         """makes a request to the server for the updates 
         for this client"""
         if self.ads == {}:
-            #when no ads are present, first get initial ads
+            # when no ads are present, first get initial ads
             self.get_initial_ads()
             return
 
         try:
             response = requests.get("http://{}:{}/push_updates/{}".format(self.server_host,
-                        self.server_port, self.id))
+                                                                          self.server_port, self.id))
             if response.status_code != 200:
-                log_event("request failed with status code %d" % \
-                response.status_code)
+                log_event("request failed with status code %d" %
+                          response.status_code)
             server_data = response.json()
         except ValueError:
             log_event("No updates")
@@ -345,10 +347,10 @@ class Client(object):
         for ad in create:
             if not create[ad]["name"] in self.ads:
                 self.retries = 0
-                self.ads[ad]  = create[ad]
+                self.ads[ad] = create[ad]
                 self.ads[ad]["path"] = self.download_file(
                     create[ad]["link"])
-        
+
     def download_file(self, link):
         '''takes the link provided with each ad and builds up a 
         url from which the file will be downloaded to the advertisments 
@@ -360,7 +362,7 @@ class Client(object):
 
         net_link = "http://%s:%s" % (self.server_host, self.server_port) + link
         try:
-            r = requests.get(net_link, stream =True)
+            r = requests.get(net_link, stream=True)
             with open(local_path, "wb") as f:
                 shutil.copyfileobj(r.raw, f)
         except:
@@ -369,18 +371,18 @@ class Client(object):
                 self.download_file(link)
             else:
                 log_event("Download failed after 5 retries")
-        
+
         return local_path
 
-    def periodic_method(self):# dont like the name
+    def periodic_method(self):  # dont like the name
         """call this function every 5 minutes to check whether the a request must be made to the server and if so, of what nature.Uses the count variable to determine what will be done during this call.
         > Every 5 minutes the health of the device and connectivity are 
         tested. 
         > Every hour updates are requested from the server
         > Every 10 minutes updates concerning the health of the client are 
         updated to the server."""
-        
-        self.query_health()  
+
+        self.query_health()
         self.start_player()
 
         if self.count % 6 == 0:
@@ -389,8 +391,9 @@ class Client(object):
         if self.count % 12 == 0:
             self.get_updates()
             self.count = 0
-        
+
         self.count += 1
+
 
 if __name__ == "__main__":
     import sys
@@ -403,21 +406,20 @@ if __name__ == "__main__":
         3.Port on server
         NB. 2 and 3 are optional""")
 
-    id = sys.argv[1].replace("%", " ")  
-    
+    id = sys.argv[1].replace("%", " ")
+
     host = sys.argv[2]
     port = sys.argv[3]
 
     client = Client(id=id,
                     host=host,
                     port=port)
- 
-    
+
     client.get_initial_ads()
-    
-    #named mcGrath after glen McGrath, cricketer nicknamed metronome
-    mcGrath = sched.scheduler(time.time, time.sleep) 
-    
+
+    # named mcGrath after glen McGrath, cricketer nicknamed metronome
+    mcGrath = sched.scheduler(time.time, time.sleep)
+
     def metronome(sc):
         client.periodic_method()
         sc.enter(300, 1, metronome, (sc, ))

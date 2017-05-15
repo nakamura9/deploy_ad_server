@@ -1,8 +1,37 @@
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
 {% extends "window.html" %}
+
 {% block viewport %}
+
 <form action="" method="POST" class="well">
-    {% csrf_token %}
-    <p>Are you sure you want to delete {{object}}?</p>
-    <input type="submit" value="Confirm" class="btn btn-primary" />
+
+    {% csrf_token %}
+    
+
+    <h3>Are you sure you want to delete {{object}}?</h3>
+{% load static %}
+<img src="{{object.thumbnail}}" alt="Ad image" width="320" height="240">
+<hr />
+<p>Description: {{object.description}} </p>
+<p>Customer: {{object.customer}}</p>
+    <input type="submit" value="Confirm" class="btn btn-primary" />
+
 </form>
+
 {% endblock %}
+
