@@ -25,7 +25,7 @@
 
     <h3>Are you sure you want to delete {{object}}?</h3>
 {% load static %}
-<img src="{{object.thumbnail}}" alt="Ad image" width="320" height="240">
+<a href='{{object.source.url}}'><img src="{{object.thumbnail}}" alt="Ad image" width="320" height="240"></a>
 <hr />
 <p>Description: {{object.description}} </p>
 <p>Customer: {{object.customer}}</p>

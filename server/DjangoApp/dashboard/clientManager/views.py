@@ -185,8 +185,6 @@ class clientHealthView(LoginRequiredMixin,DetailView):
         data = model_to_dict(self.get_object())
         data.pop("client")
         for l in data:
-            print l
-            print data[l]
             data[l] = json.loads(data[l])
         #validation for instance where there is not data
         rows = zip(data["time"],data["cpu_percentages"],data["ram_percentages"],
@@ -228,7 +226,7 @@ def add_schedule(request):
     elif request.method == "POST":
         date_format = "%Y-%m-%d"
         
-        print request.POST
+        print "data", request.POST
         #add ad
         data = {"ad": ads.objects.get(ad_name=request.POST["ad"]),
                 "start": datetime.datetime.strptime(request.POST["start"], date_format),
@@ -294,6 +292,5 @@ def push_initial(request, client_id):
     for ad in _client.client_ads.all():
         response[ad.ad_name] = convert_ad_to_json(ad.ad_name)
 
-    print response
     return HttpResponse(json.dumps(response),
                         content_type="application/json")

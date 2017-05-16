@@ -29,15 +29,16 @@ def add_message(message, error=False):
 def create_thumbnail(path):
     if not os.path.isfile(path):
         print path
+        print os.getcwd()
         raise Exception("There is no such file")
 
     name = os.path.split(path)[1]
     name = name.split('.')[0]
-
+    
     folder = os.path.abspath(os.path.join(os.getcwd(), "clientManager", "static", "clientManager","thumbs"))
 
-    if os.path.isfile(folder+name + ".png"):
-        os.remove()
+    if os.path.isfile(folder+ name + ".png"):
+        os.remove(folder+ name + ".png")
     if not os.path.exists(folder):
         os.mkdir(folder)
     
@@ -51,11 +52,3 @@ def create_thumbnail(path):
     os.rename(old_path,  new_path)
 
     return "/static/clientManager/thumbs/" + name + ".png"
-
-if __name__ == "__main__":
-    import sys
-
-    if len(sys.argv) < 2:
-        raise Exception("A file path must be supplied to the program")
-    
-    create_thumbnail(sys.argv[1])

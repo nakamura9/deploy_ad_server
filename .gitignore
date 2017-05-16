@@ -1,9 +1,12 @@
 #Folders 
 
 .vscode/
+htmlcov/
 
 # File extensions
 
+*.txt
+*.coverage
 *.mp4
 *.pyc
 *.dat
