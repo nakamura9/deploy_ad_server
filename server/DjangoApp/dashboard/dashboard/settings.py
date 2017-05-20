@@ -15,13 +15,13 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-SECRET_KEY = '36!ae)x)i1_67eg6(8=-10-mbtgoq%m9aw@j^%!^v=q9&z1x!n'
+SECRET_KEY = open(os.path.join("dashboard","secret_key_file.txt"), "r").readline()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-
+"""
 X_FRAME_OPTIONS = 'DENY'
 
 CSRF_COOKIE_HTTPONLY = True
@@ -37,7 +37,7 @@ SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
 SECURE_HSTS_SECONDS = 86400
-
+"""
 # Application definition
 
 INSTALLED_APPS = [
@@ -84,7 +84,7 @@ WSGI_APPLICATION = 'dashboard.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-DATABASES = {
+"""DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'postgres',
@@ -92,6 +92,13 @@ DATABASES = {
         'PASSWORD': '_Adserver224Pgs',
         'HOST': 'localhost',
         'PORT': ''
+    }
+}"""
+
+DATABASES = {
+    'default':{
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'db.sqlite3'
     }
 }
 

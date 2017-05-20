@@ -77,8 +77,6 @@ class Client(object):
 
     def start_player(self):
         """Starts an instance of the video player"""
-        # if no ads try and start the player 5 minutes later
-        print "starting player"
         if self.ads == {}:
             self.get_initial_ads()
             log_event("The player currently has no ads. \
@@ -96,6 +94,7 @@ class Client(object):
         log_event("player running...")
 
     def ad_expired(self, ad):
+        """Returns true if an ad has expired and must be removed"""
         today = datetime.date.today()
 
         ad = self.ads[ad]
@@ -107,6 +106,8 @@ class Client(object):
         return False
 
     def ad_is_current(self, ad):
+        """Checks if an advertisment is meant to be 
+        in the current playlist"""
         today = datetime.date.today()
         ad = self.ads[ad]
         start_date = datetime.datetime.strptime(
@@ -116,6 +117,7 @@ class Client(object):
             return False
 
         def in_interval(interval):
+            """checks if a time is between certain intervals"""
             start, end = tuple(interval.split("-"))
             start_time = datetime.datetime.strptime(start, "%H%M").time()
             end_time = datetime.datetime.strptime(end, "%H%M").time()
@@ -126,7 +128,9 @@ class Client(object):
                 return False
 
         if today >= start_date:
-            if in_interval(ad["duration"]["interval_one"]) or in_interval(ad["duration"]["interval_two"]) or in_interval(ad["duration"]["interval_three"]):
+            if in_interval(ad["duration"]["interval_one"]) or \
+             in_interval(ad["duration"]["interval_two"]) or \
+             in_interval(ad["duration"]["interval_three"]):
                 return True
             else:
                 return False
