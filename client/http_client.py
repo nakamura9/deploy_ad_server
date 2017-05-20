@@ -396,20 +396,23 @@ class Client(object):
 
 
 if __name__ == "__main__":
-    import sys
+    if not os.path.exists("config.json"):
+        raise Exception("""
+        No config file found. Please create a config.json file and populate it as follows:\n
+        {'name': <name on server>,
+        'host': <ip>,
+        'port':<port>,
+        }
+        NB: for the name variable replace spaces with the '%' character
+        """)
 
-    if len(sys.argv) < 4:
-        raise Exception("""there are not enough parameters to start the application
-        The arguments that must be provided when starting the application are:
-        1.Name of client registered with server(replace spaces with % character)
-        2.IP address of server
-        3.Port on server
-        NB. 2 and 3 are optional""")
+    config_file = open("config.json", "r")
+    config=json.load(config_file)
 
-    id = sys.argv[1].replace("%", " ")
+    id = config["name"].replace("%", " ")
 
-    host = sys.argv[2]
-    port = sys.argv[3]
+    host = config["host"]
+    port = config["port"]
 
     client = Client(id=id,
                     host=host,
