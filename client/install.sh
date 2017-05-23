@@ -1,9 +1,8 @@
 apt-get update
 apt-get install python-requests
-apt-get install python-twisted
+apt-get install python-omxplayer-wrapper
 apt-get install python-psutil
 
-apt-get install vlc
 apt-get install git
 
 git clone https://github.com/nakamura9/deploy_ad_server.git

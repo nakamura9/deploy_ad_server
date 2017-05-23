@@ -75,6 +75,9 @@ class Client(object):
         }
         self.count = 0
 
+    @property
+    def now(self):
+        return datetime.datetime.now().strftime("%H:%M")
     def start_player(self):
         """Starts an instance of the video player"""
         if self.ads == {}:

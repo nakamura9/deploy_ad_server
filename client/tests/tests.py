@@ -60,34 +60,5 @@ class Client_testing(ut.TestCase):
         self.client.start_player()
         self.assertIsNotNone(self.client.player)
 
-
-    """"def test_get_updates(self):
-        try:
-            self.requests.get("localhost:8000/summary")
-        except:
-            raise Exception("This test cannot run without a corresponding development server")
-
-        
-        self.requests.post()
-        self.client.get_updates()
-        self.assertNotEqual(self.client.ads, {})
-
-    def test_get_initial_ads(self):
-        test = self.requests.get("http://localhost:8000/summary")
-        
-        if test.status_code != 200:
-            raise Exception("This test cannot run without a corresponding development server")
-
-        ad = self.requests.post("http://localhost:8000/add_advertisment/", data=self.push_ad_data)
-        print ad.text
-
-        c = self.requests.post("http://localhost:8000/add_client", data =self.push_client)
-        print c.text
-
-
-        self.client.get_initial_ads()
-        self.assertNotEquals(self.ads, {})"""
-
-
 if __name__ == "__main__":
     ut.main()
