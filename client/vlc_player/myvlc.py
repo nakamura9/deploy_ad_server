@@ -43,6 +43,7 @@ class VLC(object):
         '''returns list of file paths'''
         return self._playlist
 
+
     @property
     def connection_open(self):
         try:
@@ -55,6 +56,7 @@ class VLC(object):
                 return False
         except Exception as e:
             return False
+
 
     @playlist.setter
     def playlist(self, arg):
@@ -74,30 +76,52 @@ class VLC(object):
             if not arg in self._playlist:
                 data = self._enqueue(arg)
 
+
     @playlist.deleter
     def playlist(self):
         '''clears the local playlist var and the remote one'''
         self._playlist = []
         self.clear()
 
+
+    @property
+    def current(self):
+        resp = requests.get(
+            "http://%s:%s/requests/status.json" % (self.host, self.port), auth=("", "1234"))
+        js = json.loads(resp.content)
+        return js["information"]["category"]["meta"]["filename"]
+
+
+    @property
+    def player_status(self):
+        resp = requests.get(
+            "http://%s:%s/requests/status.json" % (self.host, self.port), auth=("", "1234"))
+        js = json.loads(resp.content)
+        return js["state"]
+
+
     def create_player(self):
         if self.connection_open:
             return
-        Popen(["vlc", "-I", "http"],
+        self.conn =Popen(["vlc", "-I", "http"],
               stdout=PIPE, stdin=PIPE,
               stderr=PIPE)
+
 
     def check_path(self, path):
         '''Ensures all files added to the application are 
         valid paths.'''
 
         if not os.path.isfile(path):
+            print "file exception %s" % path
             raise FileNotFoundException()
         path, file = os.path.split(path)
         name, ext = file.split(".")
 
         if ext not in self.supported:
+            print " supported exception %s" % path
             raise UnsupportedFileTypeException()
+
 
     def execute(self, cmd):
         '''Prepare a command and send it to VLC'''
@@ -106,6 +130,7 @@ class VLC(object):
                 self.host, self.port, cmd)
         resp = requests.get(request_string, auth=("", "1234"))
 
+
     def toggle_fullscreen(self):
         '''puts the windows in full screen'''
         resp = requests.get(
@@ -113,7 +138,9 @@ class VLC(object):
         js = json.loads(resp.content)
 
         if js["fullscreen"] == 0:
+            print "executed fullscreen"
             self.execute('fullscreen')
+
 
     def toggle_loop(self):
         '''makes the vlc player loop the current playlist'''
@@ -123,9 +150,11 @@ class VLC(object):
         if not js["loop"]:
             self.execute("pl_loop")
 
+
     def pause(self):
         """Checks the current state to make sure the player is playing something"""
         self.execute('pl_pause')
+
 
     def play(self):
         """First checks if a valid file is currently loaded."""
@@ -134,18 +163,26 @@ class VLC(object):
         self.toggle_fullscreen()
         self.toggle_loop()
 
+
     def stop(self):
         """checks first if there is something to stop"""
         self.execute('pl_stop')
 
+
     def _enqueue(self, path):
         '''adds a file to the playlist'''
-        self.check_path(path)
         data = self.execute(
             'in_enqueue&input=%s' % (
                 os.path.abspath(path),))
+        self._playlist.append(path)
+
 
     def clear(self):
         '''clears all files from the playlist'''
-        self.execute('clear')
+        self.execute('pl_empty')
         self._playlist = []
+
+
+    def shutdown(self):
+        self.stop()
+        self.conn.kill()
