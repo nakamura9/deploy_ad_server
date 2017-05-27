@@ -339,17 +339,19 @@ class Client(object):
         except Exception:
             log_event("failed to connect to server", "e")
             return -1
+        else:
+            print server_data
+            self.delete_ads(server_data["DELETE"])
 
-        self.delete_ads(server_data["DELETE"])
+            create = server_data["CREATE"]
 
-        create = server_data["CREATE"]
-
-        for ad in create:
-            if not create[ad]["name"] in self.ads:
-                self.retries = 0
-                self.ads[ad] = create[ad]
-                self.ads[ad]["path"] = self.download_file(
-                    create[ad]["link"])
+            for ad in create:
+                data = json.loads(create[ad])
+                if not data["name"] in self.ads:
+                    self.retries = 0
+                    self.ads[ad] = data
+                    self.ads[ad]["path"] =  self.download_file(
+                    data["link"])
         return 0
 
     def download_file(self, link):
@@ -383,26 +385,31 @@ class Client(object):
         while True:
             if not self.player:
                 self.start_player()
-
+            self.query_health()
             if not self.is_connected:
                 log_event("Connectivity with the server lost", "e")
                 time.sleep(10)
                 self.run(loop_interval)
 
             if self.ads == {}:
-                self.get_initial_ads
-            else:
-                if self.player.player_status != "playing":
-                    self.player.play()
+                self.get_initial_ads()
+                self.sync_playlist()
+            
+            if self.player.player_status != "playing":
+                print "playing"
+                self.player.play()
+
             if self.count % 6 == 0:
                 self.upload_health_status()
-            elif self.count >= 12:
-                self.get_updates()
+            if self.count >= 12:
+                ret_value=self.get_updates()
+                if ret_value == 0:
+                    self.sync_playlist()
                 self.count = 0
 
-            self.query_health
             self.count += 1
             time.sleep(loop_interval)
+
     def stop(self):
         raise Exception("Client stopped manually")
 if __name__ == "__main__":

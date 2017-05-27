@@ -18,9 +18,7 @@ def add_message(message, error=False):
 
     message_string = "{}: {}".format(datetime.datetime.now().strftime("[%Y/%m/%d %H:%M:%S]"), message) 
     if error:
-
-        messages.append("<p style='text-color: red;'>" + \
-                        "Error: " + message_string + "</p>")
+        messages.append("Error:" + message_string)
         log_event(message_string, "e")
     else:
         messages.append(message_string)

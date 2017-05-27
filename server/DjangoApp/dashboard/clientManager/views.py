@@ -169,9 +169,10 @@ class updateClientView(LoginRequiredMixin,UpdateView):
         return super(updateClientView, self).get(*args, **kwargs)
     
     def form_valid(self, form):
+        response = super(updateClientView, self).form_valid(form)
         if observer.client_ads_changed(self.get_object().client_name, self.request.session["old"]):
-            add_message("client %s will have some ads modified" % client)
-        return super(updateClientView, self).form_valid(form)
+            add_message("client %s will have some ads modified" % self.get_object().client_name)
+        return response
             
             
 class clientHealthView(LoginRequiredMixin,DetailView):
@@ -248,6 +249,7 @@ def push_updates(request, client_id):
     if client_id in observer.updated_clients:
         data = json.dumps(observer.updated_clients[client_id])
         add_message("Client %s has received updates from this server" % client_id)
+        del observer.updated_clients[client_id]
         return HttpResponse(data, content_type="application/json")
         
     else:
@@ -285,7 +287,7 @@ def push_initial(request, client_id):
     if num_ads == 0:
         add_message("The client, %s tried to start at this \
         timestamp but could not find any initial ads to \
-        append to its playlist. It will check again after 10 minutes", error=True)
+        append to its playlist. It will check again after 10 minutes" % client_id, error=True)
     else:
         add_message("the client, %s will receive %d ads when it starts up " % (client_id ,num_ads))
 

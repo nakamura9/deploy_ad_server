@@ -1,6 +1,6 @@
 {
     "name": "pi",
     "host": "localhost",
-    "port": "8000"
-    "loop interval": "5",
+    "port": "8000",
+    "loop interval": "5"
 }
