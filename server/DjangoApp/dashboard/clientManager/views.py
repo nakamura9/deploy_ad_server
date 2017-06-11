@@ -225,7 +225,7 @@ def add_schedule(request):
         return render(request, path, context=context)
 
     elif request.method == "POST":
-        date_format = "%Y-%m-%d"
+        date_format = "%m/%d/%Y"
         
         print "data", request.POST
         #add ad
